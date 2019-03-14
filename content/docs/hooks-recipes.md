@@ -13,22 +13,9 @@ This is a collection of recipes that may help you start "thinking in Hooks". Fee
 
 ## Subscriptions
 
-Sometimes React components need to subscribe to an external data source. The `useSubscription` hook below shows how to do this in a way that is compatibile with React's upcoming concurrent rendering mode.
-
-> Note
->
-> Subscriptions may not be the best solution for your use case. For example:
-> * Redux/Flux stores should use the [context API](/docs/context.html) instead.
-> * Complex libraries like Relay/Apollo should manage subscriptions manually with the same technique demonstrated below.
-> * In the future, I/O subscriptions (e.g. notifications) that update infrequently should use [`react-cache`](https://github.com/facebook/react/blob/master/packages/react-cache/README.md).
-
-Although `useSubscription` guarantees correctness, it achieves this by [sometimes de-opting to synchronous mode](https://github.com/facebook/react/issues/13186#issuecomment-403959161). This is an inherent limitation of storing state outside of React's managed state queue and rendering in response to a change event. For **full compatibility** with concurrent rendering, including both **time-slicing** and **React Suspense**, the suggested longer-term solution is to move to one of the patterns described in the note above.
-
-### `useSubscription`
+Sometimes React components need to subscribe to an external data source. Handling all the possible edges in a performant way can be challenging, which is why people often use dedicated third-party libraries for connecting to data. The `useSubscription` Hook below simplifies that. It lets you subscribe to an external data source while handling all the edge cases. It is also compatible with the upcoming concurrent rendering mode.
 
 ```js
-import {useEffect, useState} from 'react';
-
 // Hook used for safely managing subscriptions in concurrent mode.
 //
 // In order to avoid removing and re-adding subscriptions each time this hook is called,
@@ -134,14 +121,9 @@ export function useSubscription<Value>({
 }
 ```
 
-### Example usage
+Here is an example of using the hook above to subscribe to a "notification service" containing information about the number of unread notifications:
 
-Below is an example of a component that subscribes to a "notification service" containing information about the number of unread notifications.
-
-```js{5-7,21}
-import React, { useMemo } from "react";
-import useSubscription from "./useSubscription";
-
+```js{2-4,18}
 function NotificationBadge({ notificationService }) {
   // In order to avoid removing and re-adding subscriptions each time this hook is called,
   // the parameters passed to this hook should be memoized with useMemo() or useCallback().
